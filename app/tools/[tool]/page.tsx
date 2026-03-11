@@ -128,13 +128,23 @@ export default function ToolPage() {
     return true;
   }
 
-  /* ── Ingestion ── */
-  async function startIngestion() {
-    const ok = await consumeCredit();
-    if (!ok) {
-      setErrorMsg("No credits remaining. Credits reset every 24 hours.");
-      setPageState("error");
-      return;
+  /* ── Ingestion ──
+   * targetUrl  – when provided, use this URL instead of the state value
+   *              (popular repos pass their URL directly; no confirm step)
+   * skipCredit – true when the repo is expected to already be cached
+   *              (popular repos).  If the API returns cached:true we never
+   *              charge regardless; otherwise we charge normally.
+   * ── */
+  async function startIngestion(targetUrl?: string, skipCredit = false) {
+    const urlToIndex = targetUrl ?? repoUrl;
+
+    if (!skipCredit) {
+      const ok = await consumeCredit();
+      if (!ok) {
+        setErrorMsg("No credits remaining. Credits reset every 24 hours.");
+        setPageState("error");
+        return;
+      }
     }
 
     setPageState("ingesting");
@@ -142,7 +152,7 @@ export default function ToolPage() {
     setStepIdx(0);
 
     let elapsed = 0;
-    const totalMs = 90_000;
+    const totalMs = skipCredit ? 8_000 : 90_000; // cached repos load fast
     const stepPcts = [5, 15, 40, 75, 95];
     timerRef.current = setInterval(() => {
       elapsed += 300;
@@ -156,23 +166,48 @@ export default function ToolPage() {
       const res = await fetch("/api/ingest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl }),
+        body: JSON.stringify({ repoUrl: urlToIndex }),
       });
 
       clearInterval(timerRef.current!);
 
       if (!res.ok) {
+        // If we skipped credit and the request failed, charge nothing.
+        // If we already charged and it failed, refresh the server counter.
+        if (!skipCredit) {
+          fetch("/api/credits")
+            .then((r) => r.json())
+            .then((d) => setCredits(d.credits ?? 0));
+        }
         const d = await res.json().catch(() => ({}));
         setErrorMsg(d.error ?? "Failed to analyse the repository.");
         setPageState("error");
-        // Refresh credit count after failed attempt
-        fetch("/api/credits")
-          .then((r) => r.json())
-          .then((d) => setCredits(d.credits ?? 0));
         return;
       }
 
       const data = await res.json();
+
+      // Repo was served from cache — no credit needed, refund if charged
+      if (data.cached && !skipCredit) {
+        // Refund the credit we pre-charged (best-effort; fire-and-forget)
+        fetch("/api/credits", { method: "DELETE" })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.credits !== undefined) setCredits(d.credits);
+          })
+          .catch(() => {});
+      }
+
+      // Charge credit now if we deferred it (skipCredit) and repo was NOT cached
+      if (!data.cached && skipCredit) {
+        const ok = await consumeCredit();
+        if (!ok) {
+          setErrorMsg("No credits remaining. Credits reset every 24 hours.");
+          setPageState("error");
+          return;
+        }
+      }
+
       setProgress(100);
       setStepIdx(INGEST_STEP_COUNT - 1);
       setRepoId(data.repoId);
@@ -188,9 +223,11 @@ export default function ToolPage() {
         err instanceof Error ? err.message : "Network error. Please try again.",
       );
       setPageState("error");
-      fetch("/api/credits")
-        .then((r) => r.json())
-        .then((d) => setCredits(d.credits ?? 0));
+      if (!skipCredit) {
+        fetch("/api/credits")
+          .then((r) => r.json())
+          .then((d) => setCredits(d.credits ?? 0));
+      }
     }
   }
 
@@ -307,6 +344,11 @@ export default function ToolPage() {
             repoUrl={repoUrl}
             onRepoUrlChange={setRepoUrl}
             onSubmit={() => setPageState("confirming")}
+            onSelectPopular={(url) => {
+              setRepoUrl(url);
+              // Skip confirm + charge no credit yet (repo is pre-indexed)
+              startIngestion(url, /* skipCredit */ true);
+            }}
           />
         )}
 
