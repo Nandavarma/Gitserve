@@ -1,6 +1,13 @@
 "use client";
 
-import { GitBranch, FolderTree, Search, Settings2, Database, CheckCheck } from "lucide-react";
+import {
+  GitBranch,
+  FolderTree,
+  Search,
+  Settings2,
+  Database,
+  CheckCheck,
+} from "lucide-react";
 import type { ToolConfig } from "./types";
 
 const INGEST_STEPS = [
@@ -168,7 +175,13 @@ export function IngestingStep({ config, progress, stepIdx }: Props) {
       >
         <div className="progress-fill" style={{ width: `${progress}%` }} />
       </div>
-      <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: "2.25rem" }}>
+      <p
+        style={{
+          fontSize: "0.78rem",
+          color: "var(--text-muted)",
+          marginBottom: "2.25rem",
+        }}
+      >
         {Math.round(progress)}% · Large repositories may take 1–3 minutes
       </p>
 
@@ -198,9 +211,7 @@ export function IngestingStep({ config, progress, stepIdx }: Props) {
                 padding: "0.28rem 0.7rem",
                 borderRadius: 9999,
                 background:
-                  done || active
-                    ? `${color}1a`
-                    : "rgba(255,255,255,0.03)",
+                  done || active ? `${color}1a` : "rgba(255,255,255,0.03)",
                 border: `1px solid ${done || active ? color + "38" : "rgba(255,255,255,0.06)"}`,
                 color: done || active ? color : "var(--text-muted)",
                 transition: "all 0.4s ease",

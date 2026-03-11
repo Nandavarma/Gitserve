@@ -9,21 +9,21 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-import { ToolHeader } from "./components/ToolHeader";
-import { InputStep } from "./components/InputStep";
-import { ConfirmStep } from "./components/ConfirmStep";
-import { IngestingStep } from "./components/IngestingStep";
-import { ErrorStep } from "./components/ErrorStep";
-import { ChatInterface } from "./components/ChatInterface";
-import { StructureResults } from "./components/StructureResults";
-import { SecurityResults } from "./components/SecurityResults";
+import { ToolHeader } from "../../../components/ToolHeader";
+import { InputStep } from "../../../components/InputStep";
+import { ConfirmStep } from "../../../components/ConfirmStep";
+import { IngestingStep } from "../../../components/IngestingStep";
+import { ErrorStep } from "../../../components/ErrorStep";
+import { ChatInterface } from "../../../components/ChatInterface";
+import { StructureResults } from "../../../components/StructureResults";
+import { SecurityResults } from "../../../components/SecurityResults";
 import type {
   PageState,
   Message,
   StructureResult,
   SecurityResult,
   ToolConfig,
-} from "./components/types";
+} from "../../../components/types";
 
 /* ─── Tool configuration ─────────────────────────────────────────────────── */
 const TOOL_CONFIG = {
