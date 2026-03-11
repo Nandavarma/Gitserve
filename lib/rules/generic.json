@@ -1,0 +1,30 @@
+[
+  {
+    "id": "generic/deep-nesting",
+    "severity": "warning",
+    "check": "excessive_nesting",
+    "message": "Files found more than 4 directory levels deep",
+    "suggestion": "Flatten deeply nested folder structures where possible — deep nesting makes navigation and imports harder to maintain."
+  },
+  {
+    "id": "generic/missing-readme",
+    "severity": "info",
+    "check": "missing_readme",
+    "message": "No README.md found at the project root",
+    "suggestion": "Add a README.md to document what the project does, how to run it, and any environment variables required."
+  },
+  {
+    "id": "generic/config-files-scattered",
+    "severity": "info",
+    "check": "config_files_scattered",
+    "message": "Multiple config files (.env, .config.*, etc.) found in unexpected locations",
+    "suggestion": "Keep all environment and config files at the project root. Avoid scattering .env files inside subdirectories."
+  },
+  {
+    "id": "generic/test-files-mixed",
+    "severity": "info",
+    "check": "test_files_mixed",
+    "message": "Test files mixed into source directories without a dedicated __tests__/ or tests/ folder",
+    "suggestion": "Organise tests in a top-level __tests__/ directory or co-locate them as *.test.ts next to the files they test."
+  }
+]

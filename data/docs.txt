@@ -1,0 +1,13 @@
+React is a JavaScript library for building user interfaces. It uses a component-based architecture where UI is divided into reusable components.
+
+React uses a Virtual DOM to efficiently update the user interface. When state changes, React calculates the difference between the previous and new Virtual DOM and updates only the necessary parts of the real DOM.
+
+Next.js is a React framework for building fullstack web applications. It supports server-side rendering (SSR), static site generation (SSG), and API routes.
+
+Next.js App Router allows developers to create layouts, pages, and server components using the app directory structure.
+
+Server Components in Next.js run on the server and reduce the amount of JavaScript sent to the browser.
+
+Retrieval Augmented Generation (RAG) is a technique used in AI applications where relevant documents are retrieved from a database and provided as context to a language model before generating a response.
+
+Vector databases store embeddings of text. These embeddings allow similarity search so that the system can retrieve the most relevant pieces of information.

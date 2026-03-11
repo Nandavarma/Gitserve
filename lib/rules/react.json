@@ -1,0 +1,30 @@
+[
+  {
+    "id": "react/components-not-in-src",
+    "severity": "warning",
+    "check": "components_at_root",
+    "message": "components/ folder found at the project root instead of src/components/",
+    "suggestion": "Move components/ inside src/ — the standard React convention is src/components/ for all reusable UI components."
+  },
+  {
+    "id": "react/missing-src",
+    "severity": "info",
+    "check": "missing_src_folder",
+    "message": "No src/ folder found",
+    "suggestion": "Consider organising source files under a src/ directory for cleaner separation from config files at the root."
+  },
+  {
+    "id": "react/hooks-outside-hooks-dir",
+    "severity": "info",
+    "check": "hooks_outside_hooks_dir",
+    "message": "Custom hooks (use*.ts/tsx) found outside a dedicated hooks/ directory",
+    "suggestion": "Group all custom hooks in src/hooks/ (or hooks/) to make them easy to discover and test."
+  },
+  {
+    "id": "react/styles-not-grouped",
+    "severity": "info",
+    "check": "styles_scattered",
+    "message": "CSS/SCSS files are scattered across the project rather than grouped",
+    "suggestion": "Consolidate styles under src/styles/ or co-locate them with their component (e.g., Component.module.css) for maintainability."
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "nextjs/components-in-app",
+    "severity": "warning",
+    "check": "path_in_app_components",
+    "message": "components/ folder found inside app/ directory",
+    "suggestion": "Move components/ to the project root level (alongside app/) per Next.js App Router conventions."
+  },
+  {
+    "id": "nextjs/missing-lib",
+    "severity": "info",
+    "check": "missing_lib_folder",
+    "message": "No lib/ or utils/ folder found",
+    "suggestion": "Create a lib/ folder for shared utilities, helpers, and non-component logic to keep the codebase organised."
+  },
+  {
+    "id": "nextjs/api-in-pages",
+    "severity": "error",
+    "check": "api_in_pages",
+    "message": "API routes found inside pages/api/ alongside App Router",
+    "suggestion": "Migrate API routes to app/api/ using Route Handlers (route.ts files) — mixing pages/api/ with the App Router is unsupported."
+  },
+  {
+    "id": "nextjs/server-component-in-lib",
+    "severity": "info",
+    "check": "server_action_in_wrong_place",
+    "message": "Server Actions or server-only utilities found outside app/ or lib/",
+    "suggestion": "Keep server-only files inside app/ (for server components/actions) or lib/ (for shared server utilities)."
+  }
+]
