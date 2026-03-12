@@ -41,15 +41,14 @@ const TOOLS = [
 export default function LandingPage() {
   const router = useRouter();
   const [credits, setCredits] = useState<number | null>(null);
+  const [creditsLoading, setCreditsLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("credits");
-    if (stored === null) {
-      localStorage.setItem("credits", "3");
-      setCredits(3);
-    } else {
-      setCredits(parseInt(stored, 10));
-    }
+    fetch("/api/credits")
+      .then((r) => r.json())
+      .then((d) => setCredits(d.credits ?? 3))
+      .catch(() => setCredits(3))
+      .finally(() => setCreditsLoading(false));
   }, []);
 
   return (
@@ -96,7 +95,11 @@ export default function LandingPage() {
         </div>
         <div className="credit-badge">
           <Coins size={13} color="#8b5cf6" style={{ flexShrink: 0 }} />
-          {credits === null ? "—" : credits} Credits
+          {creditsLoading ? (
+            <span style={{ opacity: 0.5 }}>…</span>
+          ) : (
+            <span>{credits} {credits === 1 ? "Credit" : "Credits"}</span>
+          )}
         </div>
       </nav>
 
