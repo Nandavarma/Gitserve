@@ -98,7 +98,9 @@ export default function LandingPage() {
           {creditsLoading ? (
             <span style={{ opacity: 0.5 }}>…</span>
           ) : (
-            <span>{credits} {credits === 1 ? "Credit" : "Credits"}</span>
+            <span>
+              {credits} {credits === 1 ? "Credit" : "Credits"}
+            </span>
           )}
         </div>
       </nav>
