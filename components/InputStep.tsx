@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Zap } from "lucide-react";
 import type { ToolConfig } from "./types";
 import { PopularReposModal } from "./PopularReposModal";
 
@@ -83,54 +82,59 @@ export function InputStep({
           if (repoUrl.trim()) onSubmit();
         }}
       >
-        {/* Popular repos trigger */}
-        <div
+        {/* Popular repos trigger — full-width button above the input */}
+        <button
+          type="button"
+          onClick={() => setShowPopular(true)}
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: "center",
+            width: "100%",
+            padding: "0.75rem 1.25rem",
+            marginBottom: "1rem",
+            fontSize: "0.95rem",
+            fontWeight: 700,
+            color: "var(--text-primary)",
+            background:
+              "linear-gradient(135deg, rgba(139,92,246,0.18), rgba(157,23,77,0.12))",
+            border: "1px solid rgba(139,92,246,0.45)",
+            borderRadius: "0.85rem",
+            cursor: "pointer",
+            letterSpacing: "0.01em",
+            transition:
+              "background 0.18s, border-color 0.18s, box-shadow 0.18s",
+            boxShadow: "0 0 18px rgba(139,92,246,0.15)",
+          }}
+          onMouseEnter={(e) => {
+            const b = e.currentTarget as HTMLButtonElement;
+            b.style.background =
+              "linear-gradient(135deg, rgba(139,92,246,0.28), rgba(157,23,77,0.18))";
+            b.style.borderColor = "rgba(139,92,246,0.7)";
+            b.style.boxShadow = "0 0 28px rgba(139,92,246,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            const b = e.currentTarget as HTMLButtonElement;
+            b.style.background =
+              "linear-gradient(135deg, rgba(139,92,246,0.18), rgba(157,23,77,0.12))";
+            b.style.borderColor = "rgba(139,92,246,0.45)";
+            b.style.boxShadow = "0 0 18px rgba(139,92,246,0.15)";
+          }}
+        >
+          Choose Popular Repo
+        </button>
+
+        <label
+          style={{
+            display: "block",
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--text-secondary)",
             marginBottom: "0.75rem",
           }}
         >
-          <label
-            style={{
-              fontSize: "0.875rem",
-              fontWeight: 600,
-              color: "var(--text-secondary)",
-            }}
-          >
-            GitHub Repository URL
-          </label>
-          <button
-            type="button"
-            onClick={() => setShowPopular(true)}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.35rem",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              color: "var(--accent-primary)",
-              background: "rgba(139,92,246,0.08)",
-              border: "1px solid rgba(139,92,246,0.22)",
-              borderRadius: "9999px",
-              padding: "0.3rem 0.8rem",
-              cursor: "pointer",
-              transition: "background 0.18s",
-            }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.background =
-                "rgba(139,92,246,0.16)")
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.background =
-                "rgba(139,92,246,0.08)")
-            }
-          >
-            <Zap size={12} />
-            Popular repos
-          </button>
-        </div>
+          or enter a GitHub Repository URL
+        </label>
         <div
           style={{
             display: "flex",

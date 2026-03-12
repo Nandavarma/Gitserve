@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X, Star, Code2 } from "lucide-react";
 import { POPULAR_REPOS, repoUrl, type PopularRepo } from "@/lib/popular-repos";
 
@@ -33,20 +34,31 @@ export function PopularReposModal({ onSelect, onClose }: Props) {
     if (e.target === overlayRef.current) onClose();
   }
 
-  return (
+  // Guard: createPortal only works client-side (document must exist)
+  if (typeof document === "undefined") return null;
+
+  // Render into document.body via a portal so the modal is NEVER trapped
+  // inside an ancestor's CSS transform / stacking context (e.g. anim-fade-up).
+  return createPortal(
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
       style={{
         position: "fixed",
-        inset: 0,
-        zIndex: 50,
-        background: "rgba(6, 0, 9, 0.82)",
-        backdropFilter: "blur(8px)",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 2147483647, // max safe z-index
+        background: "rgba(6, 0, 9, 0.88)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "1rem",
+        padding:
+          "env(safe-area-inset-top, 1rem) env(safe-area-inset-right, 1rem) env(safe-area-inset-bottom, 1rem) env(safe-area-inset-left, 1rem)",
+        boxSizing: "border-box",
       }}
     >
       <div
@@ -54,13 +66,16 @@ export function PopularReposModal({ onSelect, onClose }: Props) {
           background: "var(--bg-card)",
           border: "1px solid var(--border-base)",
           borderRadius: "1.5rem",
-          boxShadow: "var(--shadow-card)",
-          width: "100%",
-          maxWidth: 700,
-          maxHeight: "85vh",
+          boxShadow:
+            "0 8px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(139,92,246,0.12)",
+          width: "min(700px, calc(100vw - 2rem))",
+          maxHeight: "min(85vh, calc(100dvh - 2rem))",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
+          // Explicit centering in case flex fails on older Safari
+          marginLeft: "auto",
+          marginRight: "auto",
         }}
       >
         {/* Header */}
@@ -123,7 +138,8 @@ export function PopularReposModal({ onSelect, onClose }: Props) {
           ))}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

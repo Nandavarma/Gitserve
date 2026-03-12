@@ -17,6 +17,7 @@ import { ErrorStep } from "../../../components/ErrorStep";
 import { ChatInterface } from "../../../components/ChatInterface";
 import { StructureResults } from "../../../components/StructureResults";
 import { SecurityResults } from "../../../components/SecurityResults";
+import { PopularReposModal } from "../../../components/PopularReposModal";
 import type {
   PageState,
   Message,
@@ -80,6 +81,8 @@ export default function ToolPage() {
   const [pageState, setPageState] = useState<PageState>("input");
   const [repoUrl, setRepoUrl] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [errorCode, setErrorCode] = useState("");
+  const [showPopularOnError, setShowPopularOnError] = useState(false);
   const [repoId, setRepoId] = useState("");
 
   // Credits (server-side)
@@ -181,6 +184,7 @@ export default function ToolPage() {
         }
         const d = await res.json().catch(() => ({}));
         setErrorMsg(d.error ?? "Failed to analyse the repository.");
+        setErrorCode(d.code ?? "");
         setPageState("error");
         return;
       }
@@ -222,6 +226,7 @@ export default function ToolPage() {
       setErrorMsg(
         err instanceof Error ? err.message : "Network error. Please try again.",
       );
+      setErrorCode("");
       setPageState("error");
       if (!skipCredit) {
         fetch("/api/credits")
@@ -240,6 +245,15 @@ export default function ToolPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ repoId: rid, filePaths: paths }),
       });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setStructureResult({
+          framework: "unknown",
+          findings: [],
+          summary: d.error ?? "Could not complete analysis.",
+        });
+        return;
+      }
       setStructureResult(await res.json());
     } catch {
       setStructureResult({
@@ -293,6 +307,16 @@ export default function ToolPage() {
         }),
       });
       const data = await res.json();
+      if (!res.ok) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: data.error ?? "Something went wrong. Please try again.",
+          },
+        ]);
+        return;
+      }
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: data.response ?? "No response." },
@@ -375,7 +399,26 @@ export default function ToolPage() {
             message={errorMsg}
             onRetry={() => {
               setErrorMsg("");
+              setErrorCode("");
               setPageState("input");
+            }}
+            onSelectPreindexed={
+              errorCode === "EMBEDDINGS_QUOTA_EXCEEDED"
+                ? () => setShowPopularOnError(true)
+                : undefined
+            }
+          />
+        )}
+
+        {showPopularOnError && (
+          <PopularReposModal
+            onClose={() => setShowPopularOnError(false)}
+            onSelect={(url) => {
+              setShowPopularOnError(false);
+              setErrorMsg("");
+              setErrorCode("");
+              setRepoUrl(url);
+              startIngestion(url, true);
             }}
           />
         )}

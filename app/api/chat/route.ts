@@ -52,6 +52,22 @@ export async function POST(req: Request) {
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Chat failed";
+    // Detect quota / rate-limit errors from Groq (429 = rate limit, 402 = billing)
+    const status = (err as { status?: number })?.status;
+    const isQuota =
+      status === 429 ||
+      status === 402 ||
+      /rate.?limit|quota|credit|billing/i.test(msg);
+    if (isQuota) {
+      return Response.json(
+        {
+          error:
+            "The AI service credits are exhausted — this site is for experimental purposes only. Chat is temporarily unavailable.",
+          code: "LLM_QUOTA_EXCEEDED",
+        },
+        { status: 402 },
+      );
+    }
     console.error("[chat]", msg);
     return Response.json({ error: msg }, { status: 500 });
   }

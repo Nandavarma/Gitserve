@@ -120,13 +120,15 @@ export function StructureResults({ loading, result }: Props) {
 
   if (!result) return null;
 
-  const errorCount = result.findings.filter(
+  const errorCount = (result.findings ?? []).filter(
     (f) => f.severity === "error",
   ).length;
-  const warningCount = result.findings.filter(
+  const warningCount = (result.findings ?? []).filter(
     (f) => f.severity === "warning",
   ).length;
-  const infoCount = result.findings.filter((f) => f.severity === "info").length;
+  const infoCount = (result.findings ?? []).filter(
+    (f) => f.severity === "info",
+  ).length;
 
   return (
     <div
@@ -208,15 +210,16 @@ export function StructureResults({ loading, result }: Props) {
               style={{
                 fontSize: "1.1rem",
                 fontWeight: 800,
-                color: result.findings.length > 0 ? "#f59e0b" : "#22c55e",
+                color:
+                  (result.findings ?? []).length > 0 ? "#f59e0b" : "#22c55e",
               }}
             >
-              {result.findings.length}
+              {(result.findings ?? []).length}
             </div>
           </div>
         </div>
 
-        {result.findings.length > 0 && (
+        {(result.findings ?? []).length > 0 && (
           <div
             style={{
               flex: "1 1 200px",
@@ -492,7 +495,7 @@ export function StructureResults({ loading, result }: Props) {
       )}
 
       {/* ── Findings ── */}
-      {result.findings.length > 0 ? (
+      {(result.findings ?? []).length > 0 ? (
         <div
           style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
           className="anim-fade-up delay-300"
@@ -512,7 +515,7 @@ export function StructureResults({ loading, result }: Props) {
           >
             <AlertTriangle size={13} /> Structural Issues
           </p>
-          {result.findings.map((f, i) => (
+          {(result.findings ?? []).map((f, i) => (
             <div
               key={i}
               style={{

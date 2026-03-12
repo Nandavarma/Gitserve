@@ -34,11 +34,25 @@ export async function POST(req: Request) {
         .eq("repo_id", repoId);
 
       if (count && count > 0) {
+        // Re-fetch stored file paths so the client can run structure/security
+        // analysis on cached repos without re-indexing.
+        const { data: cachedDocs } = await supabase
+          .from("documents")
+          .select("content")
+          .eq("repo_id", repoId);
+
+        const filePaths = (cachedDocs ?? [])
+          .map((d: { content: string }) =>
+            d.content?.split("\n")[0]?.replace("File: ", "").trim(),
+          )
+          .filter(Boolean) as string[];
+
         return Response.json({
           success: true,
           repoId,
           cached: true,
           chunksIndexed: count,
+          filePaths,
         });
       }
     }
@@ -105,6 +119,16 @@ export async function POST(req: Request) {
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Ingestion failed";
+    if (msg.startsWith("QUOTA_EXCEEDED:")) {
+      return Response.json(
+        {
+          error:
+            "The embedding service credits are exhausted — this site is for experimental purposes only. Please choose a preindexed repository instead.",
+          code: "EMBEDDINGS_QUOTA_EXCEEDED",
+        },
+        { status: 402 },
+      );
+    }
     console.error("[ingest]", msg);
     return Response.json({ error: msg }, { status: 500 });
   }

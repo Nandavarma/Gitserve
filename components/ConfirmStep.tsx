@@ -140,7 +140,7 @@ export function ConfirmStep({
               <button className="btn-ghost" onClick={onBack}>
                 <ArrowLeft size={14} /> Back
               </button>
-              <button className="btn-cta" onClick={onConfirm}>
+              <button className="btn-cta" onClick={() => onConfirm()}>
                 Confirm · Use 1 Credit
               </button>
             </div>
@@ -167,7 +167,8 @@ export function ConfirmStep({
                 marginBottom: "1.25rem",
               }}
             >
-              Resets in ~{hoursUntilReset}h · Credits are tied to your device
+              Resets in ~{hoursUntilReset}h · Credits are shared across all
+              browsers on your IP
             </p>
             <button className="btn-ghost" onClick={onBack}>
               <ArrowLeft size={14} /> Go Back

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "ingest": "tsx scripts/ingest.ts",
-    "preindex": "tsx scripts/preindex.ts"
+    "preindex": "tsx scripts/preindex.ts",
+    "setup-db": "tsx scripts/setup-db.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",

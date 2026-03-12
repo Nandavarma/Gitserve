@@ -12,43 +12,17 @@
  *   SUPABASE_URL=...
  *   SUPABASE_ANON_KEY=...
  *   GITHUB_TOKEN=...           (optional, raises rate limit 60 → 5000 req/h)
- *
- * NOTE: Uses the local @xenova/transformers model for embeddings so no
- *       HF_API_KEY credits are consumed during pre-indexing.
+ *   EMBEDDING_API=...          (URL of the self-hosted embedding server)
  */
 
 import "dotenv/config";
-import { pipeline, env } from "@xenova/transformers";
 import { POPULAR_REPOS, repoUrl } from "../lib/popular-repos";
 import { fetchRepoTree, fetchFileContent } from "../lib/github";
 import { summarizeFile } from "../lib/summarize";
+import { embed } from "../lib/embeddings";
 import { supabase } from "../lib/supabase";
 
-// Write model cache to local .cache dir so it persists between runs
-env.cacheDir = "./.transformers_cache";
-
 const MAX_FILES = 80;
-
-/* ── Local embedder (downloaded once, cached on disk) ── */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let _extractor: any = null;
-
-async function embedLocal(text: string): Promise<number[]> {
-  if (!_extractor) {
-    console.log("  [embed] Loading local model (first run may take ~30s) ...");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    _extractor = await (pipeline as any)(
-      "feature-extraction",
-      "Xenova/all-MiniLM-L6-v2",
-    );
-  }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = await (_extractor as any)(text, {
-    pooling: "mean",
-    normalize: true,
-  });
-  return Array.from(result.data as number[]);
-}
 
 async function indexRepo(owner: string, repo: string): Promise<void> {
   const repoId = `${owner}/${repo}`;
@@ -84,7 +58,7 @@ async function indexRepo(owner: string, repo: string): Promise<void> {
     if (!content || content.length < 15) continue;
 
     const summary = summarizeFile(file.path, content);
-    const embedding = await embedLocal(summary);
+    const embedding = await embed(summary);
 
     const { error } = await supabase.from("documents").insert({
       content: summary,
